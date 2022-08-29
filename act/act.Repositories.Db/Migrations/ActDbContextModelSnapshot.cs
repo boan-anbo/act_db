@@ -17,7 +17,7 @@ namespace act.Repositories.Db.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.8");
 
-            modelBuilder.Entity("act.Services.Model.Interaction", b =>
+            modelBuilder.Entity("act.Repositories.Model.Interaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,7 +42,7 @@ namespace act.Repositories.Db.Migrations
                     b.ToTable("Interactions");
                 });
 
-            modelBuilder.Entity("act.Services.Model.Relation", b =>
+            modelBuilder.Entity("act.Repositories.Model.Relation", b =>
                 {
                     b.Property<int>("SubjectId")
                         .HasColumnType("INTEGER");
@@ -72,24 +72,24 @@ namespace act.Repositories.Db.Migrations
                     b.ToTable("Relations");
                 });
 
-            modelBuilder.Entity("act.Services.Model.Interaction", b =>
+            modelBuilder.Entity("act.Repositories.Model.Interaction", b =>
                 {
-                    b.HasOne("act.Services.Model.Relation", "Relation")
+                    b.HasOne("act.Repositories.Model.Relation", "Relation")
                         .WithMany()
                         .HasForeignKey("RelationSubjectId", "RelationObjectId");
 
                     b.Navigation("Relation");
                 });
 
-            modelBuilder.Entity("act.Services.Model.Relation", b =>
+            modelBuilder.Entity("act.Repositories.Model.Relation", b =>
                 {
-                    b.HasOne("act.Services.Model.Interaction", "Object")
+                    b.HasOne("act.Repositories.Model.Interaction", "Object")
                         .WithMany("AsSubjects")
                         .HasForeignKey("ObjectId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("act.Services.Model.Interaction", "Subject")
+                    b.HasOne("act.Repositories.Model.Interaction", "Subject")
                         .WithMany("Subjects")
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -100,7 +100,7 @@ namespace act.Repositories.Db.Migrations
                     b.Navigation("Subject");
                 });
 
-            modelBuilder.Entity("act.Services.Model.Interaction", b =>
+            modelBuilder.Entity("act.Repositories.Model.Interaction", b =>
                 {
                     b.Navigation("AsSubjects");
 

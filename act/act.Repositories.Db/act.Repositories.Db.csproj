@@ -16,8 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\act.Services.Model\act.Services.Model.csproj" />
-      <ProjectReference Include="..\act.Services\act.Services.csproj" />
+      <ProjectReference Include="..\act.Repositories.Model\act.Repositories.Model.csproj" />
     </ItemGroup>
 
 </Project>
