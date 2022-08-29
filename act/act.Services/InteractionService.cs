@@ -5,24 +5,52 @@ using act.Services.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
+using act.Repositories.Db;
 
 namespace act.Services
 {
     public class InteractionService : IInteractionService
     {
         private AppSettings _settings;
+
+        private ActDbContext _db;
         private readonly IMapper _mapper;
 
-        public InteractionService(IOptions<AppSettings> settings, IMapper mapper)
+        /// <summary>
+        /// Main logic for interaction
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="mapper"></param>
+        /// <param name="db"></param>
+        public InteractionService(
+            IOptions<AppSettings> settings, 
+            IMapper mapper,
+            ActDbContext db
+            )
         {
             _settings = settings?.Value;
             _mapper = mapper;
+            this._db = db;
         }
 
         public async Task<Interaction> CreateAsync(Interaction interaction)
         {
             return interaction;
         }
+
+        public async Task<Interaction> CreateInteraction(string description)
+        {
+            // create first interaction with description 
+            var interaction =   new Interaction
+            {
+                Description = description,
+            };
+            await _db.AddAsync(interaction);
+            await _db.SaveChangesAsync();
+            return interaction;
+
+        }
+
 
         public async Task<bool> UpdateAsync(Interaction interaction)
         {
@@ -39,14 +67,12 @@ namespace act.Services
             return new Interaction
             {
                 Id = id,
-                Firstname = "Firstname",
-                Lastname = "Lastname",
+                Description = "Firstname",
+                Notes = "Lastname",
                 Relation = new Relation
                 {
-                    City = "City",
-                    Country = "Country",
-                    Street = "Street",
-                    ZipCode = "ZipCode"
+                    Type = "City",
+                    Description = "Street",
                 }
             };
         }

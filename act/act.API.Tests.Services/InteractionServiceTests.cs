@@ -19,9 +19,17 @@ namespace act.API.Tests.Services
         [TestMethod]
         public async Task Service_Works()
         {
-            var result = await this._service.Test();
+            var result = await _service.Test();
 
             Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task CreateRelation()
+        {
+            var result = await  _service.CreateInteraction("Test");
+            Assert.Equals(result.Id, 1);
+
         }
     }
 }

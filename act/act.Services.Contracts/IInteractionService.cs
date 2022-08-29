@@ -8,6 +8,9 @@ namespace act.Services.Contracts
     {
         Task<Interaction> CreateAsync(Interaction interaction);
 
+
+        Task<Interaction> CreateInteraction(String description);
+
         Task<bool> UpdateAsync(Interaction interaction);
 
         Task<bool> DeleteAsync(int id);
@@ -15,5 +18,6 @@ namespace act.Services.Contracts
         Task<Interaction> GetAsync(int id);
 
         Task<Boolean> Test();
+        
     }
 }
