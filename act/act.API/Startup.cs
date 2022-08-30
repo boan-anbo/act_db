@@ -23,6 +23,13 @@ using act.API.Common.Settings;
 using act.API.Swagger;
 using act.IoC.Configuration.DI;
 using act.Repositories.Db;
+using act.Repositories.Interface;
+using act.Services.Model;
+using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Batch;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
+using OData.Swagger.Services;
 
 #pragma warning disable CS1591
 namespace act.API
@@ -77,6 +84,15 @@ namespace act.API
             // add db context
             services.AddDbContext<ActDbContext>();
             services.AddDatabaseDeveloperPageExceptionFilter();
+            
+            // add repository
+
+            services.AddScoped<IInteractionRepository, InteractionRepository>();
+            
+            // add OData and specify allowed OData operations
+            services.AddControllers().AddOData(option => option.Select().Filter().Count().OrderBy().Expand());
+
+            // services.AddOdataSwaggerSupport(); 
             
             try
             {
@@ -174,7 +190,11 @@ namespace act.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
+        public void Configure(
+            IApplicationBuilder app, 
+            IWebHostEnvironment env, 
+            IApiVersionDescriptionProvider provider
+            )
         {
             _logger.LogTrace("Startup::Configure");
             _logger.LogDebug($"Startup::Configure::Environment:{env.EnvironmentName}");
@@ -227,10 +247,25 @@ namespace act.API
                     app.UseHsts();
                 }
 
+                
+                // Use odata route debug, /$odata
+                app.UseODataRouteDebug();
+
+
+                // Add OData /$query middleware
+                app.UseODataQueryRequest();
+
+                // Add the OData Batch middleware to support OData $Batch
+                app.UseODataBatching();
+
+
                 app.UseHttpsRedirection();
                 app.UseRouting();
                 app.UseAuthorization();
-                app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                });
                 app.UseRequestLocalization();
 
                 //SWAGGER
@@ -241,6 +276,7 @@ namespace act.API
                         app.UseSwagger();
                         app.UseSwaggerUI(options =>
                         {
+                            
                             foreach (var description in provider.ApiVersionDescriptions)
                             {
                                 options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
@@ -255,6 +291,13 @@ namespace act.API
             {
                 _logger.LogError(ex.Message);
             }
+        }
+        
+        private static IEdmModel GetEdmModel()
+        {
+            ODataConventionModelBuilder builder = new();
+            builder.EntitySet<Interaction>("Interactions");
+            return builder.GetEdmModel();
         }
     }
 }

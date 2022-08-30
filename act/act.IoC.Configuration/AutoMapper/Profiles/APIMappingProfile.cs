@@ -8,8 +8,8 @@ namespace act.IoC.Configuration.AutoMapper.Profiles
     {
         public APIMappingProfile()
         {
-            CreateMap<DC.User, S.Interaction>().ReverseMap();
-            CreateMap<DC.Address, S.Relation>().ReverseMap();
+            CreateMap<DC.InteractionDto, S.Interaction>().ReverseMap();
+            CreateMap<DC.Address, S.SubjectRelation>().ReverseMap();
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using act.Services.Model;
 
@@ -9,7 +11,9 @@ namespace act.Services.Contracts
         Task<Interaction> CreateAsync(Interaction interaction);
 
 
-        Task<Interaction> CreateInteraction(String description);
+        Task<Interaction> CreateNewInteraction(String label);
+        
+        Task<Interaction> CreateInteraction(ICollection<Interaction> subjects, String relationType, ICollection<Interaction> objects);
 
         Task<bool> UpdateAsync(Interaction interaction);
 
@@ -18,6 +22,7 @@ namespace act.Services.Contracts
         Task<Interaction> GetAsync(int id);
 
         Task<Boolean> Test();
-        
+
+        IQueryable<Interaction> GetAllInteractions();
     }
 }

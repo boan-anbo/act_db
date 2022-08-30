@@ -151,7 +151,7 @@ coverage*.info
 *.coverage
 *.coveragexml
 
-.idea/
+.idea/ 
 
 # NCrunch
 _NCrunch_*
