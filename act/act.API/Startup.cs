@@ -84,16 +84,22 @@ namespace act.API
             // add db context
             services.AddDbContext<ActDbContext>();
             services.AddDatabaseDeveloperPageExceptionFilter();
-            
+
             // add repository
 
             services.AddScoped<IInteractionRepository, InteractionRepository>();
+
             
+            IEdmModel model0 = GetEdmModel();
             // add OData and specify allowed OData operations
-            services.AddControllers().AddOData(option => option.Select().Filter().Count().OrderBy().Expand());
+            services.AddControllers().AddOData(option =>
+            {
+                option.Select().Filter().Count().OrderBy().Expand()
+                    .AddRouteComponents("api/v1/acts",GetEdmModel()).EnableQueryFeatures();
+            });
 
             // services.AddOdataSwaggerSupport(); 
-            
+
             try
             {
                 if (_appSettings.IsValid())
@@ -141,34 +147,35 @@ namespace act.API
                     {
                         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
+                        
                         services.AddSwaggerGen(options =>
                         {
                             options.OperationFilter<SwaggerDefaultValues>();
 
-                            //1-Get all the assemblies of the project to add the related XML Comments
-                            Assembly currentAssembly = Assembly.GetExecutingAssembly();
-                            AssemblyName[] referencedAssemblies = currentAssembly.GetReferencedAssemblies();
-                            IEnumerable<AssemblyName> allAssemblies = null;
-
-                            if (referencedAssemblies != null && referencedAssemblies.Any())
-                                allAssemblies = referencedAssemblies.Union(new AssemblyName[]
-                                    { currentAssembly.GetName() });
-                            else
-                                allAssemblies = new AssemblyName[] { currentAssembly.GetName() };
-
-                            IEnumerable<string> xmlDocs = allAssemblies
-                                .Select(a =>
-                                    Path.Combine(Path.GetDirectoryName(currentAssembly.Location), $"{a.Name}.xml"))
-                                .Where(f => File.Exists(f));
-
-                            //2-Add the path to the XML comments for the assemblies having enabled the doc generation
-                            if (xmlDocs != null && xmlDocs.Any())
-                            {
-                                foreach (var item in xmlDocs)
-                                {
-                                    options.IncludeXmlComments(item);
-                                }
-                            }
+                            // //1-Get all the assemblies of the project to add the related XML Comments
+                            // Assembly currentAssembly = Assembly.GetExecutingAssembly();
+                            // AssemblyName[] referencedAssemblies = currentAssembly.GetReferencedAssemblies();
+                            // IEnumerable<AssemblyName> allAssemblies = null;
+                            //
+                            // if (referencedAssemblies != null && referencedAssemblies.Any())
+                            //     allAssemblies = referencedAssemblies.Union(new AssemblyName[]
+                            //         { currentAssembly.GetName() });
+                            // else
+                            //     allAssemblies = new AssemblyName[] { currentAssembly.GetName() };
+                            //
+                            // IEnumerable<string> xmlDocs = allAssemblies
+                            //     .Select(a =>
+                            //         Path.Combine(Path.GetDirectoryName(currentAssembly.Location), $"{a.Name}.xml"))
+                            //     .Where(f => File.Exists(f));
+                            //
+                            // //2-Add the path to the XML comments for the assemblies having enabled the doc generation
+                            // if (xmlDocs != null && xmlDocs.Any())
+                            // {
+                            //     foreach (var item in xmlDocs)
+                            //     {
+                            //         options.IncludeXmlComments(item);
+                            //     }
+                            // }
                         });
                     }
 
@@ -191,10 +198,10 @@ namespace act.API
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(
-            IApplicationBuilder app, 
-            IWebHostEnvironment env, 
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
             IApiVersionDescriptionProvider provider
-            )
+        )
         {
             _logger.LogTrace("Startup::Configure");
             _logger.LogDebug($"Startup::Configure::Environment:{env.EnvironmentName}");
@@ -247,7 +254,7 @@ namespace act.API
                     app.UseHsts();
                 }
 
-                
+
                 // Use odata route debug, /$odata
                 app.UseODataRouteDebug();
 
@@ -262,10 +269,7 @@ namespace act.API
                 app.UseHttpsRedirection();
                 app.UseRouting();
                 app.UseAuthorization();
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllers();
-                });
+                app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
                 app.UseRequestLocalization();
 
                 //SWAGGER
@@ -276,10 +280,10 @@ namespace act.API
                         app.UseSwagger();
                         app.UseSwaggerUI(options =>
                         {
-                            
                             foreach (var description in provider.ApiVersionDescriptions)
                             {
-                                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                                options.SwaggerEndpoint(
+                                    $"/swagger/{description.GroupName}/swagger.json",
                                     description.GroupName.ToUpperInvariant());
                                 //options.RoutePrefix = string.Empty;
                             }
@@ -292,11 +296,12 @@ namespace act.API
                 _logger.LogError(ex.Message);
             }
         }
-        
-        private static IEdmModel GetEdmModel()
+
+        public static IEdmModel GetEdmModel()
         {
             ODataConventionModelBuilder builder = new();
             builder.EntitySet<Interaction>("Interactions");
+            
             return builder.GetEdmModel();
         }
     }
