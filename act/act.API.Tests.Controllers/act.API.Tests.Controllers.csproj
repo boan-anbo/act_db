@@ -32,6 +32,7 @@
     <ProjectReference Include="..\act.API.DataContracts\act.API.DataContracts.csproj" />
     <ProjectReference Include="..\act.API\act.API.csproj" />
     <ProjectReference Include="..\act.IoC.Configuration\act.IoC.Configuration.csproj" />
+    <ProjectReference Include="..\act.Repositories.Contracts\act.Repositories.Contracts.csproj" />
     <ProjectReference Include="..\act.Repositories\act.Repositories.csproj" />
     <ProjectReference Include="..\act.Tools\act.Tools.csproj" />
   </ItemGroup>

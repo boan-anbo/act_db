@@ -33,7 +33,6 @@ namespace act.API.Tests.Controllers.ControllerTests.V1
             //Simple test
             var user = await _controller.CreateUser(new UserCreationRequest
             {
-                InteractionDto = new InteractionDto { Id = "U1", Firstname = "Firstname 1", Lastname = "Lastname 1" },
                 Date = DateTime.Now
             });
 

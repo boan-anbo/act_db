@@ -11,15 +11,19 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Attributes;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.OpenApi;
 using S = act.Services.Model;
-
+using Microsoft.OpenApi.OData;
+using Microsoft.OpenApi.Extensions;
+using Microsoft.OpenApi;
 namespace act.API.Controllers.V1
 {
     [ApiVersion("1.0")]
     [Route("api/acts")]//required for default versioning
     [Route("api/v{version:apiVersion}/acts")]
-    [ODataRouteComponent("api/v1")]
+    [ODataRouteComponent]
     [ApiController]
+    
     public class InteractionController : ODataController
     {
         private readonly IInteractionService _service;
@@ -34,27 +38,37 @@ namespace act.API.Controllers.V1
             _logger = logger;
         }
 #pragma warning restore CS1591
+        #region Swagger Endpoint
+
+        [HttpGet("swagger.json")]
+        public IActionResult GetSwaggerDocument()
+        {
+            var edmModel = Startup.GetEdmModel();
+
+            // Convert to OpenApi:
+            var openApiSettings = new OpenApiConvertSettings
+            {
+                ServiceRoot = new("http://localhost:5000"),
+                PathPrefix = "swagger",
+                EnableKeyAsSegment = true,
+            };
+
+            var openApiDocument = edmModel
+                .ConvertToOpenApi(openApiSettings)
+                .SerializeAsJson(OpenApiSpecVersion.OpenApi3_0);
+
+            return Content(openApiDocument, "application/json");
+        }
+
+        #endregion Swagger Endpoint 
 
         #region GET
         
-        
-        /// <summary>
-        /// OData endpoint for getting Interactions.
-        /// </summary>
-        /// <remarks>
-        /// XML comments included in controllers will be extracted and injected in Swagger/OpenAPI file.
-        /// </remarks>
-        /// <returns>
-        /// </returns>
-        /// <response code="201">Returns the newly created item.</response>
-        /// <response code="204">If the item is null.</response>
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InteractionDto))]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(InteractionDto))]
+        [HttpGet("")] 
         [EnableQuery]
-        [HttpGet]
-        public IQueryable<S.Interaction> Get()
+        public IActionResult  Get()
         {
-            return _service.GetAllInteractions();
+            return Ok(_service.GetAllInteractions());
         }
         
         // /// <summary>
