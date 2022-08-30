@@ -5,20 +5,15 @@ namespace act.API.DataContracts
     /// <summary>
     /// User datacontract summary to be replaced
     /// </summary>
-    public class User
+    public class InteractionDto
     {
         [DataType(DataType.Text)]
-        public string Id { get; set; }
+        public string Label { get; set; }
 
         [Required]
         [DataType(DataType.Text)]
-        public string Firstname { get; set; }
+        public string Description { get; set; }
 
-        [Required]
-        [DataType(DataType.Text)]
-        public string Lastname { get; set; }
-
-        public Address Address { get; set; }
 
     }
 }

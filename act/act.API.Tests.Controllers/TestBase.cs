@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using act.Repositories.Db;
+using act.Repositories.Interface;
 
 namespace act.API.Tests.Controllers
 {
@@ -21,6 +23,9 @@ namespace act.API.Tests.Controllers
             var appSettings = _configurationRoot.GetSection(nameof(AppSettings));
 
             _services = new ServiceCollection();
+            
+            _services.AddDbContext<ActDbContext>();
+            _services.AddScoped<IInteractionRepository, InteractionRepository>();
             
             //We load EXACTLY the same settings (DI and others) than API real solution, what is much better for tests.
             _services.ConfigureBusinessServices((IConfiguration)_configurationRoot);

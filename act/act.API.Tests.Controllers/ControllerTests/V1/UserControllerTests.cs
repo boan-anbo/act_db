@@ -15,16 +15,16 @@ namespace act.API.Tests.Controllers.ControllerTests.V1
     public class UserControllerTests : TestBase
     {
         //NOTE: should be replaced by an interface
-        UserController _controller;
+        InteractionController _controller;
 
         public UserControllerTests() : base()
         {
             var businessService = _serviceProvider.GetRequiredService<IInteractionService>();
             var mapper = _serviceProvider.GetRequiredService<IMapper>();
             var loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger<UserController>();
+            var logger = loggerFactory.CreateLogger<InteractionController>();
 
-            _controller = new UserController(businessService, mapper, logger);
+            _controller = new InteractionController(businessService, mapper, logger);
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace act.API.Tests.Controllers.ControllerTests.V1
             //Simple test
             var user = await _controller.CreateUser(new UserCreationRequest
             {
-                User = new User { Id = "U1", Firstname = "Firstname 1", Lastname = "Lastname 1" },
+                InteractionDto = new InteractionDto { Id = "U1", Firstname = "Firstname 1", Lastname = "Lastname 1" },
                 Date = DateTime.Now
             });
 

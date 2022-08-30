@@ -35,12 +35,12 @@ namespace act.API.Controllers.V2
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<User> Get(int id)
+        public async Task<InteractionDto> Get(int id)
         {
             var data = await _service.GetAsync(id);
 
             if (data != null)
-                return _mapper.Map<User>(data);
+                return _mapper.Map<InteractionDto>(data);
             else
                 return null;
         }
@@ -48,7 +48,7 @@ namespace act.API.Controllers.V2
 
         #region POST
         [HttpPost]
-        public async Task<User> CreateUser([FromBody]UserCreationRequest value)
+        public async Task<InteractionDto> CreateUser([FromBody]UserCreationRequest value)
         {
 
             //TODO: include exception management policy according to technical specifications
@@ -59,10 +59,10 @@ namespace act.API.Controllers.V2
                 throw new ArgumentNullException("value.User");
 
 
-            var data = await _service.CreateAsync(_mapper.Map<S.Interaction>(value.User));
+            var data = await _service.CreateAsync(_mapper.Map<S.Interaction>(value.InteractionDto));
 
             if (data != null)
-                return _mapper.Map<User>(data);
+                return _mapper.Map<InteractionDto>(data);
             else
                 return null;
 
@@ -71,7 +71,7 @@ namespace act.API.Controllers.V2
 
         #region PUT
         [HttpPut()]
-        public async Task<bool> UpdateUser(User parameter)
+        public async Task<bool> UpdateUser(InteractionDto parameter)
         {
             if (parameter == null)
                 throw new ArgumentNullException("parameter");

@@ -6,6 +6,6 @@ namespace act.API.DataContracts.Requests
     {
         public DateTime Date { get; set; }
 
-        public User User { get; set; }
+        public InteractionDto InteractionDto { get; set; }
     }
 }

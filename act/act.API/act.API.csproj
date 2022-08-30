@@ -20,8 +20,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.8" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+    <PackageReference Include="OData.Swagger" Version="1.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.1" />
@@ -37,6 +39,7 @@
     <ProjectReference Include="..\act.Repositories.Db\act.Repositories.Db.csproj" />
     <ProjectReference Include="..\act.API.Common\act.API.Common.csproj" />
     <ProjectReference Include="..\act.API.DataContracts\act.API.DataContracts.csproj" />
+    <ProjectReference Include="..\act.Repositories\act.Repositories.csproj" />
     <ProjectReference Include="..\act.Services\act.Services.csproj" />
     <ProjectReference Include="..\act.IoC.Configuration\act.IoC.Configuration.csproj" />
   </ItemGroup>

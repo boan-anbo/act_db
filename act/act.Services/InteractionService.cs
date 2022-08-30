@@ -4,8 +4,11 @@ using act.Services.Contracts;
 using act.Services.Model;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using act.Repositories.Db;
+using act.Repositories.Interface;
 
 namespace act.Services
 {
@@ -13,42 +16,79 @@ namespace act.Services
     {
         private AppSettings _settings;
 
-        private ActDbContext _db;
+        private IInteractionRepository _repo;
         private readonly IMapper _mapper;
+        private readonly ActDbContext _db;
 
         /// <summary>
         /// Main logic for interaction
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="mapper"></param>
-        /// <param name="db"></param>
+        /// <param name="repo"></param>
+        /// <param name="dbContext"></param>
         public InteractionService(
             IOptions<AppSettings> settings, 
             IMapper mapper,
-            ActDbContext db
+            IInteractionRepository repo,
+            ActDbContext dbContext
             )
         {
             _settings = settings?.Value;
             _mapper = mapper;
-            this._db = db;
+            this._repo = repo;
+            _db = dbContext;
         }
 
         public async Task<Interaction> CreateAsync(Interaction interaction)
         {
-            return interaction;
+            return await _repo.AddInteraction(interaction);
         }
 
-        public async Task<Interaction> CreateInteraction(string description)
+        public async Task<Interaction> CreateNewInteraction(string label)
         {
-            // create first interaction with description 
-            var interaction =   new Interaction
-            {
-                Description = description,
-            };
-            await _db.AddAsync(interaction);
-            await _db.SaveChangesAsync();
-            return interaction;
 
+            var interaction = new Interaction
+            {
+                Label = label,
+            };
+            return await _repo.AddInteraction(interaction);
+        }
+        
+
+        public async Task<Interaction> CreateInteraction(ICollection<Interaction> subjects, string relationType, ICollection<Interaction> objects)
+        {
+
+            var hostInteraction = new Interaction
+            {
+                Description = relationType
+            };
+            
+            var subjectRelations = subjects.Select(subjectInteraction =>
+            {
+                var relation = new SubjectRelation
+                {
+                    HostInteraction = hostInteraction,
+                    LinkedInteraction = subjectInteraction
+                };
+                return relation;
+            }).ToList();
+            
+            // do object relations
+            var objectRelations = objects.Select(objectInteraction =>
+            {
+                var relation = new ObjectRelation
+                {
+                    HostInteraction = hostInteraction,
+                    LinkedInteraction = objectInteraction
+                };
+                return relation;
+            }).ToList();
+            
+            hostInteraction.Subjects = subjectRelations;
+            hostInteraction.Objects = objectRelations;
+            
+            return await _repo.AddInteraction(hostInteraction);
         }
 
 
@@ -64,22 +104,17 @@ namespace act.Services
 
         public async Task<Interaction> GetAsync(int id)
         {
-            return new Interaction
-            {
-                Id = id,
-                Description = "Firstname",
-                Notes = "Lastname",
-                Relation = new Relation
-                {
-                    Type = "City",
-                    Description = "Street",
-                }
-            };
+            return new Interaction();
         }
 
         public async Task<Boolean> Test()
         {
             return true;
+        }
+
+        public IQueryable<Interaction> GetAllInteractions()
+        {
+            return _db.Interactions;
         }
     }
 }

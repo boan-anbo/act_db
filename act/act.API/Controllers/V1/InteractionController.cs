@@ -6,23 +6,28 @@ using act.API.DataContracts;
 using act.API.DataContracts.Requests;
 using act.Services.Contracts;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Attributes;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 using S = act.Services.Model;
 
 namespace act.API.Controllers.V1
 {
     [ApiVersion("1.0")]
-    [Route("api/users")]//required for default versioning
-    [Route("api/v{version:apiVersion}/users")]
+    [Route("api/acts")]//required for default versioning
+    [Route("api/v{version:apiVersion}/acts")]
+    [ODataRouteComponent("api/v1")]
     [ApiController]
-    public class UserController : Controller
+    public class InteractionController : ODataController
     {
         private readonly IInteractionService _service;
         private readonly IMapper _mapper;
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<InteractionController> _logger;
 
 #pragma warning disable CS1591
-        public UserController(IInteractionService service, IMapper mapper, ILogger<UserController> logger)
+        public InteractionController(IInteractionService service, IMapper mapper, ILogger<InteractionController> logger)
         {
             _service = service;
             _mapper = mapper;
@@ -31,32 +36,53 @@ namespace act.API.Controllers.V1
 #pragma warning restore CS1591
 
         #region GET
+        
+        
         /// <summary>
-        /// Returns a user entity according to the provided Id.
+        /// OData endpoint for getting Interactions.
         /// </summary>
         /// <remarks>
         /// XML comments included in controllers will be extracted and injected in Swagger/OpenAPI file.
         /// </remarks>
-        /// <param name="id"></param>
         /// <returns>
-        /// Returns a user entity according to the provided Id.
         /// </returns>
         /// <response code="201">Returns the newly created item.</response>
         /// <response code="204">If the item is null.</response>
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(User))]
-        [HttpGet("{id}")]
-        public async Task<User> Get(int id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InteractionDto))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(InteractionDto))]
+        [EnableQuery]
+        [HttpGet]
+        public IQueryable<S.Interaction> Get()
         {
-            _logger.LogDebug($"UserControllers::Get::{id}");
-
-            var data = await _service.GetAsync(id);
-
-            if (data != null)
-                return _mapper.Map<User>(data);
-            else
-                return null;
+            return _service.GetAllInteractions();
         }
+        
+        // /// <summary>
+        // /// Returns a user entity according to the provided Id.
+        // /// </summary>
+        // /// <remarks>
+        // /// XML comments included in controllers will be extracted and injected in Swagger/OpenAPI file.
+        // /// </remarks>
+        // /// <param name="id"></param>
+        // /// <returns>
+        // /// Returns a user entity according to the provided Id.
+        // /// </returns>
+        // /// <response code="201">Returns the newly created item.</response>
+        // /// <response code="204">If the item is null.</response>
+        // [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InteractionDto))]
+        // [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(InteractionDto))]
+        // [HttpGet("{id}")]
+        // public async Task<InteractionDto> Get(int id)
+        // {
+        //     _logger.LogDebug($"UserControllers::Get::{id}");
+        //
+        //     var data = await _service.GetAsync(id);
+        //
+        //     if (data != null)
+        //         return _mapper.Map<InteractionDto>(data);
+        //     else
+        //         return null;
+        // }
         #endregion
 
         #region POST
@@ -70,22 +96,22 @@ namespace act.API.Controllers.V1
         /// <returns>A newly created user.</returns>
         /// <response code="201">Returns the newly created item.</response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
-        public async Task<User> CreateUser([FromBody]UserCreationRequest value)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(InteractionDto))]
+        public async Task<InteractionDto> CreateUser([FromBody]UserCreationRequest value)
         {
             _logger.LogDebug($"UserControllers::Post::");
 
             if (value == null)
                 throw new ArgumentNullException("value");
 
-            if (value.User == null)
+            if (value.InteractionDto == null)
                 throw new ArgumentNullException("value.User");
 
 
-            var data = await _service.CreateAsync(_mapper.Map<S.Interaction>(value.User));
+            var data = await _service.CreateAsync(_mapper.Map<S.Interaction>(value.InteractionDto));
 
             if (data != null)
-                return _mapper.Map<User>(data);
+                return _mapper.Map<InteractionDto>(data);
             else
                 return null;
 
@@ -106,7 +132,7 @@ namespace act.API.Controllers.V1
         /// <response code="200">Returns a boolean notifying if the user has been updated properly.</response>
         [HttpPut()]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<bool> UpdateUser(User parameter)
+        public async Task<bool> UpdateUser(InteractionDto parameter)
         {
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
