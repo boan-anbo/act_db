@@ -23,10 +23,12 @@ using act.API.Common.Settings;
 using act.API.Swagger;
 using act.IoC.Configuration.DI;
 using act.Repositories.Db;
+using act.Repositories.GraphQL;
 using act.Repositories.Interface;
 using act.Services.Model;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Batch;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using OData.Swagger.Services;
@@ -81,6 +83,9 @@ namespace act.API
                 _logger.LogTrace("Startup::ConfigureService::Configuring Application Insights");
             }
 
+            // enable cors
+            services.AddCors();
+
             // add db context
             services.AddDbContext<ActDbContext>();
             services.AddDatabaseDeveloperPageExceptionFilter();
@@ -89,13 +94,22 @@ namespace act.API
 
             services.AddScoped<IInteractionRepository, InteractionRepository>();
 
-            
+            services
+                .AddGraphQLServer()
+                    .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
+                .AddQueryType<GraphQLQuery>()
+                .AddProjections()
+                .AddFiltering()
+                .AddSorting()
+                .AddMutationType<GraphQLMutation>()
+                ;
+
             IEdmModel model0 = GetEdmModel();
             // add OData and specify allowed OData operations
             services.AddControllers().AddOData(option =>
             {
                 option.Select().Filter().Count().OrderBy().Expand()
-                    .AddRouteComponents("api/v1/acts",GetEdmModel()).EnableQueryFeatures();
+                    .AddRouteComponents("api/v1/acts", GetEdmModel()).EnableQueryFeatures();
             });
 
             // services.AddOdataSwaggerSupport(); 
@@ -147,7 +161,7 @@ namespace act.API
                     {
                         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
-                        
+
                         services.AddSwaggerGen(options =>
                         {
                             options.OperationFilter<SwaggerDefaultValues>();
@@ -254,6 +268,14 @@ namespace act.API
                     app.UseHsts();
                 }
 
+// set cors
+                app.UseCors(
+                    options => options
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                );
+
 
                 // Use odata route debug, /$odata
                 app.UseODataRouteDebug();
@@ -266,11 +288,18 @@ namespace act.API
                 app.UseODataBatching();
 
 
-                app.UseHttpsRedirection();
+                // app.UseHttpsRedirection();
+
                 app.UseRouting();
                 app.UseAuthorization();
-                app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                    endpoints.MapGraphQL();
+                });
                 app.UseRequestLocalization();
+
+                // load graphql server
 
                 //SWAGGER
                 if (_appSettings.IsValid())
@@ -301,8 +330,37 @@ namespace act.API
         {
             ODataConventionModelBuilder builder = new();
             builder.EntitySet<Interaction>("Interactions");
-            
+
             return builder.GetEdmModel();
         }
+
+        // private static void InitializeDatabase(IApplicationBuilder app)
+        // {
+        //     using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+        //     {
+        //         var context = serviceScope.ServiceProvider.GetRequiredService<SchoolContext>();
+        //         if (context.Database.EnsureCreated())
+        //         {
+        //             var course = new Course { Credits = 10, Title = "Object Oriented Programming 1" };
+        //
+        //             context.Enrollments.Add(new Enrollment
+        //             {
+        //                 Course = course,
+        //                 Student = new Student { FirstMidName = "Rafael", LastName = "Foo", EnrollmentDate = DateTime.UtcNow }
+        //             });
+        //             context.Enrollments.Add(new Enrollment
+        //             {
+        //                 Course = course,
+        //                 Student = new Student { FirstMidName = "Pascal", LastName = "Bar", EnrollmentDate = DateTime.UtcNow }
+        //             });
+        //             context.Enrollments.Add(new Enrollment
+        //             {
+        //                 Course = course,
+        //                 Student = new Student { FirstMidName = "Michael", LastName = "Baz", EnrollmentDate = DateTime.UtcNow }
+        //             });
+        //             context.SaveChangesAsync();
+        //         }
+        //     }
+        // }
     }
 }

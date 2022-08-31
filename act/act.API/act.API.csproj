@@ -15,7 +15,9 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="12.12.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
@@ -40,6 +42,7 @@
     <ProjectReference Include="..\act.Repositories.Db\act.Repositories.Db.csproj" />
     <ProjectReference Include="..\act.API.Common\act.API.Common.csproj" />
     <ProjectReference Include="..\act.API.DataContracts\act.API.DataContracts.csproj" />
+    <ProjectReference Include="..\act.Repositories.GraphQL\act.Repositories.GraphQL.csproj" />
     <ProjectReference Include="..\act.Repositories\act.Repositories.csproj" />
     <ProjectReference Include="..\act.Services\act.Services.csproj" />
     <ProjectReference Include="..\act.IoC.Configuration\act.IoC.Configuration.csproj" />
