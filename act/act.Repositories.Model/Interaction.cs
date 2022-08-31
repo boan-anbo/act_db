@@ -34,7 +34,8 @@ namespace act.Services.Model
         /// <inheritdoc cref="InteractionType"/>
         [Required]
         public InteractionType Type { get; set; }
-        public int TypeId { get; set; }
+
+        public int TypeId { get; set; } = 1;
         
         /// <summary>
         /// Start date of the interaction.
@@ -68,5 +69,26 @@ namespace act.Services.Model
         {
             
         }
+        
+        
+        /// <summary>
+        /// Set idenity to entity, and type to "to be" (i.e. typeid: 1).
+        /// For the most basic operation: Create a new entity interaction.
+        /// </summary>
+        public void SetEntityIdentityAndType()
+        {
+            Identity = InteractionIdentity.ENTITY;
+            TypeId = 1;
+        }
+        
+        /// <summary>
+        /// Factory pattern, from label
+        /// </summary>
+        public static Interaction FromLabel(string label)
+        {
+            var interaction = new Interaction {Label = label};
+            return interaction;
+        }
     }
+    
 }

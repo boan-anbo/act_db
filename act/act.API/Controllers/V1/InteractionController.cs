@@ -49,7 +49,7 @@ namespace act.API.Controllers.V1
             var openApiSettings = new OpenApiConvertSettings
             {
                 ServiceRoot = new("http://localhost:5000"),
-                PathPrefix = "swagger",
+                PathPrefix = "api/v1/swagger",
                 EnableKeyAsSegment = true,
             };
 

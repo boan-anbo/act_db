@@ -11,9 +11,12 @@ public class InteractionRepository : IInteractionRepository
     public InteractionRepository(ActDbContext context)
         => _context = context;
     
-    public async Task<Interaction> GetInteraction(int id)
+    public async Task<Interaction> GetInteractionScalar(int id)
     {
-        return await _context.Interactions.FirstOrDefaultAsync(i => i.Id == id);
+        return await _context.Interactions
+            .Include(x => x.Type)
+            
+            .FirstOrDefaultAsync(i => i.Id == id) ?? throw new InvalidOperationException();
     }
 
     public Task<IEnumerable<Interaction>> GetAllInteractions()
@@ -32,5 +35,12 @@ public class InteractionRepository : IInteractionRepository
     public async Task SaveChanges()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteInteraction(int id)
+    {
+        var interaction = await _context.Interactions.FindAsync(id);
+        _context.Interactions.Remove(interaction);
+        await SaveChanges();
     }
 }
